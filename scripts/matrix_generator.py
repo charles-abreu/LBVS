@@ -41,7 +41,7 @@ def get_matrix(smiles_file, reduce=False):
 # data_dir: path containing data (each target is a a directory with smiles)
 # st_type: T = test, V = validation
 def run_LIT(data_dir, set_type):
-    dir_list = glob(experiment + "*")
+    dir_list = glob(data_dir + os.sep + "*")
 
     for pdb in dir_list:
         if set_type == "T" and os.path.exists(pdb + os.sep +'train.csv'): continue
@@ -82,7 +82,15 @@ def run_5HT(data_dir):
     matrix.to_csv(data_dir + os.sep +'data.csv')
 
 if __name__ == '__main__':
-    data_dir = sys.argv[1]
-    #set_type = sys.argv[2]
-    #run_LIT(data_dir, data_dir)
-    run_5HT(data_dir)
+    active_smiles = sys.argv[1]
+    inactive_smiles = sys.argv[2]
+    # Gerando matriz para ligantes
+    active_df = get_matrix(active_smiles)
+    active_df['class'] = 1
+    # Gerando matriz para decoys
+    inactive_df = get_matrix(inactive_smiles)
+    inactive_df['class'] = 0
+    # Concatenando matrizes
+    matrix = pd.concat([active_df, inactive_df])
+    # Salvando matriz no Drive
+    matrix.to_csv(os.path.dirname(active_smiles) + os.sep +'data.csv')
